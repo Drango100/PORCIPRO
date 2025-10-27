@@ -16,8 +16,8 @@ return new class extends Migration
         }
         Schema::create('cruzamientos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gallo_id')->constrained('gallos')->onDelete('set null');
-            $table->foreignId('gallina_id')->constrained('gallinas')->onDelete('set null');
+            $table->foreignId('gallo_id')->constrained('gallos_reproductores')->onDelete('set null');
+            $table->foreignId('gallina_id')->constrained('gallinas_reproductoras')->onDelete('set null');
             $table->date('fecha_cruza');
             $table->date('fecha_estimacion_eclosion')->nullable(); // calculada automáticamente
             $table->string('observaciones')->nullable();
