@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, Calendar, CheckCircle } from 'lucide-react';
-import { getProgramacion,newProgramacion,deleteProgramacion,updateProgramacion
-} from '../services/ServiciosProgamacionMonta/ProgramacionMontaService';
+import { getProgramacion,newProgramacion,deleteProgramacion,updateProgramacion} from '../../../../services/ServiciosProgamacionMonta/ProgramacionMontaService';
 
 const MontaModule = () => {
   const [montas, setMontas] = useState([]);

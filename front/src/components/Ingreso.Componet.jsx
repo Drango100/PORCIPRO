@@ -1,5 +1,4 @@
-// src/components/Ingresocomponent.js
-import React, { useEffect, useState } from 'react'; // 👈 Asegúrate de importar estos hooks
+import React, { useEffect, useState } from 'react';
 import { getIngreso, deleteIngreso } from '../services/IngresoMarranaService';
 
 const Ingresocomponent = () => {

@@ -7,7 +7,7 @@ import MarranosModule from '../Ingreso/Marranos/ConsultarMarranoComponet';
 import CrearIngresoMarranos from '../Ingreso/Marranos/CrearIngresoMarranoComponet';
 import NacimientosModule from '../Ingreso/RegistroNaciminetos/ConsultaNacimientoComponet';
 import CrearNacimientos from '../Ingreso/RegistroNaciminetos/IngresoNacimiento';
-import MontaModule from  '../../ProgramacionMontaComponet'
+import MontaModule from  '../../Page/Ingreso/ProgramacionMontas/ProgramacionMontaComponet'
 import { User, ChevronDown, Settings, LogOut } from 'lucide-react';
 
 const Dashboard = ({ user, onLogout }) => {

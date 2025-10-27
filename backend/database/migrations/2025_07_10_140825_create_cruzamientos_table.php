@@ -1,35 +1,40 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        if (Schema::hasTable('cruzamientos')) {
-            return; // Si ya existe, salta esta migración
-        }
         Schema::create('cruzamientos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('gallo_id')->constrained('gallos_reproductores')->onDelete('set null');
-            $table->foreignId('gallina_id')->constrained('gallinas_reproductoras')->onDelete('set null');
+            // Hacer las columnas nullables antes de crear la llave foránea
+            $table->unsignedBigInteger('gallo_id')->nullable();
+            $table->unsignedBigInteger('gallina_id')->nullable();
             $table->date('fecha_cruza');
-            $table->date('fecha_estimacion_eclosion')->nullable(); // calculada automáticamente
+            $table->date('fecha_estimacion_eclosion')->nullable();
             $table->string('observaciones')->nullable();
             $table->timestamps();
+
+            // Añadir las llaves foráneas después
+            $table->foreign('gallo_id')
+                  ->references('id')
+                  ->on('gallos_reproductores')
+                  ->onDelete('set null');
+                  
+            $table->foreign('gallina_id')
+                  ->references('id')
+                  ->on('gallinas_reproductoras')
+                  ->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('cruzaminetos');
+        // Corregido el typo en 'cruzaminetos'
+        Schema::dropIfExists('cruzamientos');
     }
 };

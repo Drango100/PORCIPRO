@@ -53,7 +53,7 @@ const DashboardHome = () => {
 
       // Obtener mes actual
       const hoy = new Date();
-      const mesActual = hoy.getMonth();      // 0 = enero
+      const mesActual = hoy.getMonth();   
       const añoActual = hoy.getFullYear();
 
       // Filtrar nacimientos solo del mes actual

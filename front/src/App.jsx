@@ -1,11 +1,8 @@
-// ...existing code...
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-
-// Componente principal Home (pantalla inicial pública)
 import Home from './components/Page/Home/HomeComponet.jsx';
-// Componente de login (debe aceptar una prop onLogin para notificar éxito)
 import Login from './components/Page/Login/InicioSesionComponet.jsx';
+import Registro from './components/Page/Login/Registro.UsuarioComponet.jsx';
 // Dashboard con sus rutas internas (se muestra solo si está autenticado)
 import Dashboard from './components/Page/DashBoart/DashBoartComponet.jsx';
 
@@ -32,7 +29,7 @@ export default function App() {
       <Routes>
         {/* Ruta pública: Home */}
         <Route path="/" element={<Home />} />
-
+        <Route path="/registro" element={<Registro />} />
         {/* Ruta de login:
             - Si ya está autenticado, redirige al dashboard
             - Si no, renderiza el componente Login y le pasa onLogin */}

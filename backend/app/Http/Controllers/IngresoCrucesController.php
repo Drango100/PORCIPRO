@@ -2,64 +2,156 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\cruzamientos;
+use App\Models\Cruzamiento;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class IngresoCrucesController extends Controller
 {
-    // Obtener todos los cruzamientos
+    /**
+     * GET: Obtener todos los cruzamientos
+     */
     public function obtenerCruces()
     {
-        return response()->json(cruzamientos::with(['gallo', 'gallina'])->get(), 200);
+        try {
+            $cruces = Cruzamiento::with(['gallo', 'gallina'])
+                                ->latest('fecha_cruza')
+                                ->paginate(10);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $cruces
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al obtener cruzamientos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Registrar un nuevo cruzamiento
+    /**
+     * POST: Registrar nuevo cruzamiento
+     */
     public function nuevoCruce(Request $request)
     {
-        $request->validate([
-            'gallo_id' => 'required|exists:gallos,id',
-            'gallina_id' => 'required|exists:gallinas,id',
-            'fecha_cruza' => 'required|date',
-            'observaciones' => 'nullable|string|max:255',
-        ]);
+        try {
+            $validated = $request->validate([
+                'gallo_id' => 'required|exists:gallos,id',
+                'gallina_id' => 'required|exists:gallinas,id',
+                'fecha_cruza' => 'required|date|before_or_equal:today',
+                'observaciones' => 'nullable|string|max:255',
+            ]);
 
-        $fechaCruza = Carbon::parse($request->fecha_cruza);
-        $fechaEclosion = $fechaCruza->copy()->addDays(21);
+            DB::beginTransaction();
 
-        $cruce = cruzamientos::create([
-            'gallo_id' => $request->gallo_id,
-            'gallina_id' => $request->gallina_id,
-            'fecha_cruza' => $request->fecha_cruza,
-            'fecha_estimacion_eclosion' => $fechaEclosion,
-            'observaciones' => $request->observaciones,
-        ]);
+            $fechaCruza = Carbon::parse($validated['fecha_cruza']);
+            $fechaEclosion = $fechaCruza->copy()->addDays(21);
 
-        return response()->json(['mensaje' => 'Cruce registrado correctamente', 'data' => $cruce], 201);
+            $cruce = Cruzamiento::create([
+                ...$validated,
+                'fecha_estimacion_eclosion' => $fechaEclosion
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Cruce registrado correctamente',
+                'data' => $cruce->load(['gallo', 'gallina'])
+            ], 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al registrar el cruce',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Actualizar un cruzamiento
+    /**
+     * PUT: Actualizar cruzamiento
+     */
     public function actualizarCruce(Request $request, $id)
     {
-        $cruce = cruzamientos::findOrFail($id);
+        try {
+            $cruce = Cruzamiento::findOrFail($id);
 
-        $cruce->update($request->only(['gallo_id', 'gallina_id', 'fecha_cruza', 'observaciones']));
+            $validated = $request->validate([
+                'gallo_id' => 'sometimes|exists:gallos,id',
+                'gallina_id' => 'sometimes|exists:gallinas,id',
+                'fecha_cruza' => 'sometimes|date|before_or_equal:today',
+                'observaciones' => 'nullable|string|max:255',
+            ]);
 
-        // Si se cambia la fecha de cruza, se recalcula la fecha de eclosión
-        if ($request->filled('fecha_cruza')) {
-            $cruce->fecha_estimacion_eclosion = Carbon::parse($request->fecha_cruza)->addDays(21);
-            $cruce->save();
+            DB::beginTransaction();
+
+            if (isset($validated['fecha_cruza'])) {
+                $validated['fecha_estimacion_eclosion'] = Carbon::parse($validated['fecha_cruza'])->addDays(21);
+            }
+
+            $cruce->update($validated);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Cruce actualizado correctamente',
+                'data' => $cruce->fresh()->load(['gallo', 'gallina'])
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al actualizar el cruce',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json(['mensaje' => 'Cruce actualizado', 'data' => $cruce]);
     }
 
-    // Eliminar un cruce
+    /**
+     * DELETE: Eliminar cruzamiento
+     */
     public function eliminarCruce($id)
     {
-        $cruce = cruzamientos::findOrFail($id);
-        $cruce->delete();
+        try {
+            DB::beginTransaction();
+            
+            $cruce = Cruzamiento::findOrFail($id);
+            $cruce->delete();
+            
+            DB::commit();
 
-        return response()->json(['mensaje' => 'Cruce eliminado']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Cruce eliminado correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al eliminar el cruce',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
