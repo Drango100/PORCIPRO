@@ -17,21 +17,33 @@ app.use(express.json());
 // dotenv config
 dotenv.config();
 
-// Conexión a MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log("MongoDB conectado"))
-  .catch(err => console.error(err));
+// Conexión a MongoDB y arranque ordenado
+const start = async () => {
+  try {
+    const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+    if (!uri) throw new Error('Falta la variable de entorno MONGODB_URI o MONGO_URI');
 
-// Crear roles iniciales
-createRoles();
-createAdmin();
+    await mongoose.connect(uri);
+    console.log('MongoDB conectado');
 
-// Rutas principales
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
+    // Esperar a que los roles estén listos antes de crear el admin
+    await createRoles();
+    await createAdmin();
 
-// Servidor
-app.listen(4000, () => {
-  console.log("Servidor corriendo en http://localhost:4000");
-});
+    // Rutas principales
+    app.use('/api/auth', authRoutes);
+    app.use('/api/users', userRoutes);
+
+    const port = process.env.PORT || 4000;
+    app.listen(port, () => {
+      console.log(`Servidor corriendo en http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error('Error arrancando la app:', err);
+    process.exit(1);
+  }
+};
+
+start();
+
 export default app;
