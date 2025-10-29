@@ -1,12 +1,16 @@
-import express from 'express';
-import { crearUsuario, obtenerUsuarios } from '../controllers/user.controller.js';
+import { Router } from "express";
+import { getUsers, getUserById, deleteUser } from "../controllers/user.controller.js";
+import { verifyToken, isAdmin } from "../middlewares/authJwt.js";
 
-const router = express.Router();
+const router = Router();
 
-// POST /api/usuarios → registrar un nuevo usuario
-router.post('/', crearUsuario);
+// Listar todos los usuarios (solo admin)
+router.get("/", [verifyToken, isAdmin], getUsers);
 
-// GET /api/usuarios → obtener lista de usuarios con sus roles
-router.get('/', obtenerUsuarios);
+// Ver usuario por ID
+router.get("/:id", [verifyToken], getUserById);
+
+// Eliminar usuario
+router.delete("/:id", [verifyToken, isAdmin], deleteUser);
 
 export default router;

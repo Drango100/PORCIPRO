@@ -1,60 +1,33 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
-// Definición del esquema para usuarios
-const userSchema = new mongoose.Schema(
-  {
-    // Nombre del usuario
-    nombre: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    // Email único para login
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    // Contraseña (se encriptará antes de guardar)
-    password: {
-      type: String,
-      required: true,
-      minlength: 6,
-    },
-    // Relación con el modelo Role
-    rol: {
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  roles: [
+    {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Role',
-      required: true,
+      ref: "Role",
     },
-    // Estado del usuario
-    activo: {
-      type: Boolean,
-      default: true,
-    },
-  },
-  { timestamps: true }
-);
+  ],
+}, { timestamps: true });
 
-// Middleware de Mongoose que se ejecuta antes de guardar un usuario
-userSchema.pre('save', async function (next) {
-  // Si el password no fue modificado, sigue sin encriptar de nuevo
-  if (!this.isModified('password')) return next();
-
-  // Genera un "salt" para fortalecer la encriptación
-  const salt = await bcrypt.genSalt(10);
-  // Reemplaza la contraseña por su versión encriptada
-  this.password = await bcrypt.hash(this.password, salt);
+// Encriptar contraseña antes de guardar
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// Método personalizado del modelo para comparar contraseñas durante el login
-userSchema.methods.compararPassword = async function (password) {
+// Método para comparar contraseñas
+userSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-// Exportamos el modelo para usarlo en controladores
-export default mongoose.model('User', userSchema);
+// Método estático para encriptar contraseñas (compatibilidad con initialSetup)
+userSchema.statics.encryptPassword = async function (password) {
+  return await bcrypt.hash(password, 10);
+};
+
+export default mongoose.model("User", userSchema);

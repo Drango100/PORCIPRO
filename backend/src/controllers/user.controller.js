@@ -1,50 +1,33 @@
-import User from '../models/user.model.js';
-import Role from '../models/role.model.js';
+import User from "../models/User.Model.js";
 
-// Crear un nuevo usuario
-export const crearUsuario = async (req, res) => {
+// Obtener todos los usuarios
+export const getUsers = async (req, res) => {
   try {
-    const { nombre, email, password, rol } = req.body;
-
-    // Verificar si ya existe un usuario con el mismo correo
-    const usuarioExistente = await User.findOne({ email });
-    if (usuarioExistente)
-      return res.status(400).json({ msg: 'El usuario ya está registrado' });
-
-    // Verificar que el rol exista
-    const rolEncontrado = await Role.findById(rol);
-    if (!rolEncontrado)
-      return res.status(404).json({ msg: 'Rol no encontrado en la base de datos' });
-
-    // Crear usuario nuevo
-    const nuevoUsuario = await User.create({ nombre, email, password, rol });
-
-    // Responder con el usuario creado (sin mostrar password)
-    res.status(201).json({
-      id: nuevoUsuario._id,
-      nombre: nuevoUsuario.nombre,
-      email: nuevoUsuario.email,
-      rol: rolEncontrado.nombre,
-      activo: nuevoUsuario.activo,
-    });
+    const users = await User.find().populate("roles", "name");
+    res.json(users);
   } catch (error) {
-    res.status(500).json({
-      msg: 'Error al crear usuario',
-      error: error.message,
-    });
+    res.status(500).json({ message: "Error al obtener usuarios" });
   }
 };
 
-// Obtener la lista de usuarios (con su rol asociado)
-export const obtenerUsuarios = async (req, res) => {
+// Obtener un usuario por ID
+export const getUserById = async (req, res) => {
   try {
-    // Populate rellena la info del rol (nombre)
-    const usuarios = await User.find().populate('rol', 'nombre descripcion');
-    res.json(usuarios);
+    const user = await User.findById(req.params.id).populate("roles", "name");
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+    res.json(user);
   } catch (error) {
-    res.status(500).json({
-      msg: 'Error al obtener usuarios',
-      error: error.message,
-    });
+    res.status(500).json({ message: "Error al obtener usuario" });
+  }
+};
+
+// Eliminar usuario
+export const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "Usuario no encontrado" });
+    res.json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar usuario" });
   }
 };
