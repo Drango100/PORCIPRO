@@ -32,12 +32,12 @@ export const createAdmin = async () => {
     const adminRole = await Role.findOne({ name: 'admin' });
     if (!adminRole) throw new Error('Rol admin no encontrado');
 
-    const hashed = await User.encryptPassword('admin123');//password por defecto
-
+    // Crear el admin con la contraseña en texto plano para que el pre('save')
+    // del modelo `User` la hashee una sola vez.
     await User.create({
       username: 'admin',
       email: 'admin@agroplus.com',
-      password: hashed,
+      password: 'admin123', // contraseña por defecto (será hasheada en pre-save)
       roles: [adminRole._id],
     });
 

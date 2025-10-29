@@ -1,33 +1,25 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  roles: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Role",
-    },
-  ],
-}, { timestamps: true });
+const userSchema = new mongoose.Schema(
+  {
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    roles: [{ ref: "Role", type: mongoose.Schema.Types.ObjectId }],
+  },
+  { timestamps: true, versionKey: false }
+);
 
-// Encriptar contraseña antes de guardar
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
-});
-
-// Método para comparar contraseñas
-userSchema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
+// 🔐 Encriptar contraseña
+userSchema.statics.encryptPassword = async (password) => {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
 };
 
-// Método estático para encriptar contraseñas (compatibilidad con initialSetup)
-userSchema.statics.encryptPassword = async function (password) {
-  return await bcrypt.hash(password, 10);
+// 🔍 Comparar contraseña ingresada con la guardada
+userSchema.statics.comparePassword = async (password, receivedPassword) => {
+  return await bcrypt.compare(password, receivedPassword);
 };
 
 export default mongoose.model("User", userSchema);
