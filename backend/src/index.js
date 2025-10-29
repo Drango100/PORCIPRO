@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import { createRoles, createAdmin } from "./libs/initialSetup.js";
-
+import "dotenv/config";
 const app = express();
 
 // Middlewares
