@@ -14,7 +14,7 @@ const DB_HOST = process.env.DB_HOST ?? "localhost";
 const DB_PORT = Number(process.env.DB_PORT ?? 3306);
 const DB_USER = process.env.DB_USER ?? process.env.DB_USERNAME ?? "root";
 const DB_PASS = process.env.DB_PASS ?? process.env.DB_PASSWORD ?? "";
-const DB_NAME = process.env.DB_NAME ?? process.env.DB_DATABASE ?? "authNode";
+const DB_NAME = process.env.DB_NAME ?? process.env.DB_DATABASE ?? "agroplus";
 const LOCK_TIMEOUT = Number(process.env.MIGRATION_LOCK_TIMEOUT ?? 15); // seg
 
 async function ensureDatabase() {

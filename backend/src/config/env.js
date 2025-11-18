@@ -11,7 +11,7 @@ export const env = {
   DB_PORT: Number(process.env.DB_PORT || 3306),
   DB_USER: process.env.DB_USER || process.env.DB_USERNAME || "root",
   DB_PASS: process.env.DB_PASS ?? process.env.DB_PASSWORD ?? "",
-  DB_NAME: process.env.DB_NAME || process.env.DB_DATABASE || "authNode",
+  DB_NAME: process.env.DB_NAME || process.env.DB_DATABASE || "agroplus",
 
   JWT_SECRET: process.env.JWT_SECRET || "please-change-me",
   JWT_EXPIRES: process.env.JWT_EXPIRES || "7d",
