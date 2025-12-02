@@ -19,7 +19,7 @@ export async function up(conn) {
 
       -- Llaves foráneas
       CONSTRAINT fk_companymodules_company 
-        FOREIGN KEY (company_id) REFERENCES company(id) ON DELETE CASCADE,
+        FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE,
       CONSTRAINT fk_companymodules_module 
         FOREIGN KEY (module_id) REFERENCES modules(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

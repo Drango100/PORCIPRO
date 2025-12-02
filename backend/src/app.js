@@ -4,7 +4,10 @@ import cors from "cors";
 import { env } from "./config/env.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import companyRoutes from "./modules/routes/company.routes.js";
-
+import moduleRoutes from "./modules/routes/module.routes.js";
+import rolesRoutes from "./modules/routes/roles.routes.js";
+import rolesModulesRoutes from "./modules/routes/rolesModules.routes.js";
+import permissionsRoutes from "./modules/routes/permissions.routes.js";
 const app = express();
 
 app.use(cors({
@@ -17,6 +20,10 @@ app.use(cookieParser());
 // rutas
 app.use("/api/auth", authRoutes);
 app.use("/api/companies", companyRoutes);
+app.use("/api/modules", moduleRoutes);
+app.use("/api/roles", rolesRoutes);
+app.use("/api/roles-modules", rolesModulesRoutes);
+app.use("/api/permissions", permissionsRoutes);
 
 // healthcheck
 app.get("/health", (_req, res) => res.json({ ok: true }));

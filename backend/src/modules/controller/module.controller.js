@@ -1,8 +1,8 @@
 // controllers/module.controller.js
 // Controlador para manejo de módulos y activación por empresa.
 
-import { ModuleModel } from "../models/module.model.js";
-import { CompanyModuleModel } from "../models/companyModule.model.js";
+import { ModuleModel } from "../model/module.model.js";
+import { CompanyModuleModel } from "../model/companyModule.model.js";
 
 /**
  * Crear un módulo (admin del sistema)
