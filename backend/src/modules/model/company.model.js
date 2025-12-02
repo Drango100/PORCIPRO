@@ -14,7 +14,7 @@ export class CompanyModel {
   static async create(data) {
     const { name, nit, address, phone } = data;
 
-    const [result] = await conn.execute(
+    const [result] = await pool.execute(
       `INSERT INTO companies (name, nit, address, phone)
        VALUES (?, ?, ?, ?)`,
       [name, nit, address, phone]
