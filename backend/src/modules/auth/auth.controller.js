@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { pool } from "../../db/index.js";              // <= ajusta si tu pool está en otra ruta
 import { fail, ok, pick } from "../../utils.js";       // <= ajusta si utils está en otra ruta
+import {AuthService} from "../../services/auth/auth.service.js"
+
 
 // Si tienes env centralizado, descomenta y usa env.* en vez de process.env.*
 // import { env } from "../../config/env.js";
@@ -74,16 +76,25 @@ export async function register(req, res) {
       "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
       [name, email, hash]
     );
-
-    const token = signToken({ id: result.insertId, email });
+    // OBTENER roles y permisos reales
+    const roles = await AuthService.getUserRoles(user.id);
+    const permissions = await AuthService.getUserPermissions(user.id);
+    // GENERAR token igual
+    const token = signToken({ id: user.id, email: user.email });
+    // Enviar cookie
     res.cookie(COOKIE_NAME, token, cookieOpts(persist));
-    return ok(res, { user: { id: result.insertId, name, email } }, 201);
+   return ok(res, {
+  user: { id: user.id, name: user.name, email: user.email },
+  roles,
+  permissions,
+  toke})
   } catch (e) {
     if (e?.code === "ER_DUP_ENTRY") return fail(res, "El correo ya existe", 409);
     console.error("[register]", e);
     return fail(res, "No se pudo registrar", 500);
   }
 }
+
 
 export async function login(req, res) {
   try {

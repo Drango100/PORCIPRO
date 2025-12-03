@@ -1,11 +1,6 @@
 // src/modules/auth/auth.routes.js
 import { Router } from "express";
-import {
-  login,
-  register as doRegister,
-  me,
-  logout,
-} from "./auth.controller.js";
+import {login,register as doRegister,me,logout,} from "./auth.controller.js";
 import { requireAuth, optionalAuth, requireRole } from "./auth.middleware.js";
 
 const r = Router();
